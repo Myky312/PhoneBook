@@ -2,30 +2,37 @@ package customClasses;
 import java.util.Arrays;
 
 public class MySet {
+    private int initialCapacity = 10;
     private String[] elements;
-    private int size;
+    private int actualSize;
 
     public MySet() {
-        elements = new String[10];
-        size = 0;
+        elements = new String[initialCapacity];
+        actualSize = 0;
     }
-    
+
     public void add(String element) {
         if (contains(element)) {
             return;
         }
-    
-        if (size == elements.length) {
-            elements = Arrays.copyOf(elements, elements.length * 2);
+
+        if (actualSize == initialCapacity) {
+            elements = Arrays.copyOf(elements, initialCapacity * 2);
         }
-    
-        elements[size++] = element;
+
+        int i = actualSize - 1;
+        while (i >= 0 && elements[i].compareTo(element) > 0) {
+            elements[i + 1] = elements[i];
+            i--;
+        }
+        elements[i + 1] = element;
+        actualSize++;
     }
-    
+
     public boolean contains(String element) {
         int left = 0;
-        int right = size - 1;
-    
+        int right = actualSize - 1;
+
         while (left <= right) {
             int middle = (left + right) / 2;
             if (elements[middle].compareTo(element) == 0) {
@@ -38,22 +45,22 @@ public class MySet {
         }
         return false;
     }
-    
+
     public int size() {
-        return size;
+        return actualSize;
     }
 
     public void remove(String element) {
         int left = 0;
-        int right = size - 1;
-        
+        int right = actualSize - 1;
+
         while (left <= right) {
             int middle = (left + right) / 2;
             if (elements[middle].compareTo(element) == 0) {
-                for (int i = middle; i < size - 1; i++) {
+                for (int i = middle; i < actualSize - 1; i++) {
                     elements[i] = elements[i + 1];
                 }
-                size--;
+                actualSize--;
                 return;
             } else if (elements[middle].compareTo(element) < 0) {
                 left = middle + 1;
@@ -61,7 +68,17 @@ public class MySet {
                 right = middle - 1;
             }
         }
+        shrinkCapacity();
     }
-    
-    
+
+    public void shrinkCapacity() {
+        if (actualSize <= elements.length / 2) {
+            int newCapacity = elements.length / 4;
+            if (newCapacity < 10) {
+                newCapacity = 10;
+            }
+            String[] newElements = Arrays.copyOf(elements, newCapacity);
+            elements = newElements;
+        }
+    }
 }
